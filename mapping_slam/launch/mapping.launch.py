@@ -24,6 +24,12 @@ def generate_launch_description():
         'mapping_config_real.yaml'
     )
 
+    rviz_config = os.path.join(
+        get_package_share_directory('mapping_slam'),
+        'rviz',
+        'mapping.rviz'
+    )
+
     slam_node_sim = Node(
         package='slam_toolbox',
         executable='async_slam_toolbox_node',
@@ -48,6 +54,15 @@ def generate_launch_description():
         condition=UnlessCondition(use_sim_time)
     )
 
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config],
+        parameters=[{'use_sim_time': use_sim_time}]
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_sim_time',
@@ -55,5 +70,6 @@ def generate_launch_description():
             description='True for simulation, False for the real robot'
         ),
         slam_node_sim,
-        slam_node_real
+        slam_node_real,
+        rviz_node
     ])
