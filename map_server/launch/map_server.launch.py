@@ -1,3 +1,5 @@
+import os
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
@@ -13,6 +15,12 @@ def generate_launch_description():
         LaunchConfiguration('map_file')
     ])
 
+    rviz_config = os.path.join(
+        get_package_share_directory('map_server'),
+        'rviz',
+        'map_display.rviz'
+    )
+
     map_server_node = Node(
         package='nav2_map_server',
         executable='map_server',
@@ -22,6 +30,15 @@ def generate_launch_description():
             {'use_sim_time': True},
             {'yaml_filename': map_file}
         ]
+    )
+
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config],
+        parameters=[{'use_sim_time': True}]
     )
 
     lifecycle_manager_node = Node(
@@ -43,5 +60,6 @@ def generate_launch_description():
             description='Map yaml file name inside map_server/config'
         ),
         map_server_node,
+        rviz_node,
         lifecycle_manager_node
     ])
