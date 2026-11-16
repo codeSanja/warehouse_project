@@ -28,6 +28,32 @@ def generate_launch_description():
         'amcl_config_real.yaml'
     )
 
+    rviz_config = os.path.join(
+        get_package_share_directory('localization_server'),
+        'rviz',
+        'localization.rviz'
+    )
+
+    rviz_node_sim = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config],
+        parameters=[{'use_sim_time': True}],
+        condition=LaunchConfigurationEquals('map_file', 'warehouse_map_sim.yaml')
+    )
+
+    rviz_node_real = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config],
+        parameters=[{'use_sim_time': False}],
+        condition=LaunchConfigurationNotEquals('map_file', 'warehouse_map_sim.yaml')
+    )
+
     map_server_node = Node(
         package='nav2_map_server',
         executable='map_server',
@@ -84,5 +110,7 @@ def generate_launch_description():
         map_server_node,
         amcl_node_sim,
         amcl_node_real,
-        lifecycle_manager_node
+        lifecycle_manager_node,
+        rviz_node_sim,
+        rviz_node_real
     ])
